@@ -1,0 +1,150 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="jquery_cookie.js"></script>
+<script type="text/javascript" src="objects.js"></script>
+<script type="application/javascript">
+var game;
+var WIDTH,HEIGHT;
+var R=10;	// Radius of  big circle
+var P = { x : -10, y : -10 };
+var canvas;
+var n=0;	//No. of balls
+var i;
+var I;	//contains setInterval()
+var play=true;
+var temp;
+
+var stats = new STATS();
+var target = new TARGET();	// Contains all the balls
+var ball = new Array();	// Contains all the balls
+
+function init()	//Initialising the canvas
+{
+	canvas=document.getElementById("canvas");
+	game = canvas.getContext("2d");	WIDTH = canvas.width;
+	HEIGHT = canvas.height;
+	new_game();
+}
+function new_game()	// Starts a new game
+{
+	play=true;
+	stats.Reset();
+	target.new_target();
+	clearInterval(I);
+	document.getElementById("play").style.opacity=0.0;
+	setTimeout("document.getElementById('play').style.visibility='hidden';",700);
+	$.cookie("game",''+stats.high, { expires: 365 });
+	stats.update("");
+	I=setInterval("draw();",30);
+}
+function gameover()	// Gameover
+{
+	play=false;
+	clearInterval(I);
+	$.cookie("game",''+stats.high, { expires: 365 });	// Write highscore into the cookie
+	document.getElementById("play").style.opacity=0.8;
+	document.getElementById('play').style.visibility='visible';
+	stats.update("You have been hit");
+}
+
+function onMouseMove(evt)	//	Mouse handler
+{
+	if( (evt.pageX > canvas.offsetLeft) && (evt.pageY > canvas.offsetTop) )
+	{
+		P.x=evt.pageX-canvas.offsetLeft;
+		P.y=evt.pageY-canvas.offsetTop;
+	}
+	if( play && (P.x > (target.x-10)) && (P.x < target.x+30) && (P.y > (target.y-10)) && (P.y < target.y+30) )
+	{
+		target.new_target();
+		stats.scoring();
+		ball[n-1] = new BALL();
+	}
+}
+
+$(document).mousemove(onMouseMove);	// mouse handler
+
+function clear()	// Clear
+{
+	game.clearRect(0,0,WIDTH,HEIGHT);
+}
+function turn()
+{
+	for( i=0; i<n; i++ )
+		ball[i].turn();
+}
+
+function check_collision()	//	check if the ball collides the player
+{
+	if( (ball[i].x>P.x-10) && (ball[i].x<P.x+10) && (ball[i].y>P.y-10) && (ball[i].y<P.y+10) )
+	{
+		gameover();
+	}
+}
+function circle(X,Y,r,colour1,colour2)
+{
+	var grad = game.createRadialGradient(X-r/2,Y-r/2,0, X,Y,r);
+	grad.addColorStop(0, colour2);
+	grad.addColorStop(1, colour1);
+	game.fillStyle = grad;
+	game.beginPath();
+	game.arc(X, Y, r, 0, Math.PI*2, true); 
+	game.closePath();
+	game.fill();
+}
+function draw()	// Main function
+{
+	clear();
+	target.draw();	// Draws the target rectangle
+	circle(P.x,P.y,R,"crimson",'white');
+	for( i=0; i<n; i++ )
+	{
+		circle(P.x,P.y,R,"crimson",'white');
+		ball[i].bounce();	// Bounce off the sides
+		check_collision();
+		ball[i].move();		// Move the ball
+		ball[i].draw();		// Draw the ball
+	}
+	stats.score_max-=.1;
+}
+var help = "Reach ur target<br>Don't get hit by the balls<br>Click to reverse the direction of the balls<br>Reaching your target faster fetches more points"
+$(document).ready(function(){
+	$("img.img").hover(function() {
+		$(this).stop().animate({"opacity": "1.0"}, "slow");
+	},function() {
+		$(this).stop().animate({"opacity": "0.4"}, "slow");
+	});
+	$("#help").hover(function() {
+		$(this).stop().fadeTo("normal",0.0,function(){
+			document.getElementById("help").innerHTML = help;
+		});
+		$(this).fadeTo("normal",1.0);
+	},function() {
+		$(this).stop().fadeTo("normal",0.0,function(){
+			document.getElementById("help").innerHTML="Help";
+		});
+		$(this).fadeTo("normal",0.4);
+	});
+});
+</script>
+</head>
+<body onLoad="init();">
+	<canvas id="canvas" onClick="turn();" width="400" height="300"></canvas>
+    
+    <div id="play" style="visibility:hidden">
+    	<img class="img" onClick="new_game()" src="play.png"></img>
+        <div id="help">Help</div>
+	</div>
+    
+    <div id="message">
+		<div id="score" style="background:none"></div>
+		<div id="count" style="background:none"></div>
+        <div id="tries" style="background:none"></div>
+        <div id="high"  style="background:none"></div>
+    </div>
+    
+    <p id="msg"></p>
+</body>
+</html>

@@ -1,0 +1,101 @@
+body, canvas, div, img
+	{
+		margin:0;
+		padding:0;
+		border:0;
+		vertical-align:baseline;
+		
+		background: #FF3;
+    	background: -webkit-linear-gradient(#FFF,#FF3);
+    	background:    -moz-linear-gradient(#FFF,#FF3);
+    	background:      -o-linear-gradient(#FFC,#FF3);
+    	background:         linear-gradient(#FFC,#FF3);
+	}
+	#canvas
+	{
+    	background: #6FF8FF;
+    	background: -webkit-radial-gradient(#B7FFFC,#6FF8FF);
+    	background:    -moz-radial-gradient(#B7FFFC,#6FF8FF);
+    	background:      -o-radial-gradient(#B7FFFC,#6FF8FF);
+    	background:         radial-gradient(#B7FFFC,#6FF8FF);
+		
+		display:block;
+		margin:20px auto;
+		border-right : dashed red   3px;
+		border-bottom: dashed red   3px;
+		border-top   : solid  black 3px;
+		border-left  : solid  black 3px;
+	}
+	#play
+	{
+		background-color:#CCC;
+		margin:3px auto;
+		border:3px solid black;
+		position:relative;
+		top:-326px;
+		display:block;
+		width:400px;
+		height:300px;
+		vertical-align:middle;
+		opacity:0.8;
+		
+		-moz-transition: all .7s;
+		-webkit-transition: all .7s;
+		-ms-transition: all .7s;
+		-o-transition: all .7s;
+		transition: all .7s;
+		
+	}
+	#message
+	{
+		display:block;
+		margin:0px auto;
+		width:360px;
+		position:relative;
+		padding:20px;
+		top:-300px;
+		border:3px solid black;
+		color:#00F;
+		text-align:center;
+		font:normal 20px "Comic Sans MS", cursive;
+		
+		background: #FF3;
+    	background: -webkit-linear-gradient(#FFC,#FF3);
+    	background:    -moz-linear-gradient(#FFC,#FF3);
+    	background:      -o-linear-gradient(#FFC,#FF3);
+    	background:         linear-gradient(#FFC,#FF3);
+	}
+	#msg
+	{
+		display:block;
+		margin:0px auto;
+		width:300px;
+		text-align:center;
+		position:relative;
+		top:-600px;
+		color:#F00;
+		font:normal 20px verdana;
+	}
+	.img
+	{
+		position:relative;
+		background:none;
+		width:45px;
+		top:127px;
+		margin:0px auto;
+		display:block;
+		vertical-align:middle;
+		opacity:.4;
+	}
+	#help
+	{
+		position:absolute;
+		text-align:right;
+		right:0px;
+		bottom:0px;
+		width:300px;
+		height:auto;
+		margin:5px;
+		opacity:0.4;
+		background:none;
+	}

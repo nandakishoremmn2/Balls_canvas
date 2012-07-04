@@ -1,0 +1,318 @@
+<html>
+<head>
+<style type="text/css">
+	body, canvas, div, img
+	{
+		margin:0;
+		padding:0;
+		border:0;
+		vertical-align:baseline;
+		
+		background: #FF3;
+    	background: -webkit-linear-gradient(#FFF,#FF3);
+    	background:    -moz-linear-gradient(#FFF,#FF3);
+    	background:      -o-linear-gradient(#FFC,#FF3);
+    	background:         linear-gradient(#FFC,#FF3);
+	}
+	#canvas
+	{
+    	background: #6FF8FF;
+    	background: -webkit-radial-gradient(#B7FFFC,#6FF8FF);
+    	background:    -moz-radial-gradient(#B7FFFC,#6FF8FF);
+    	background:      -o-radial-gradient(#B7FFFC,#6FF8FF);
+    	background:         radial-gradient(#B7FFFC,#6FF8FF);
+		
+		display:block;
+		margin:20px auto;
+		border-right : dashed red   3px;
+		border-bottom: dashed red   3px;
+		border-top   : solid  black 3px;
+		border-left  : solid  black 3px;
+	}
+	#play
+	{
+		background-color:#CCC;
+		margin:3px auto;
+		border:3px solid black;
+		position:relative;
+		top:-326px;
+		display:block;
+		width:400px;
+		height:300px;
+		vertical-align:middle;
+		opacity:0.8;
+		
+		-moz-transition: all .7s;
+		-webkit-transition: all .7s;
+		-ms-transition: all .7s;
+		-o-transition: all .7s;
+		transition: all .7s;
+		
+	}
+	#message
+	{
+		display:block;
+		margin:0px auto;
+		width:360px;
+		position:relative;
+		padding:20px;
+		top:-300px;
+		border:3px solid black;
+		color:#00F;
+		text-align:center;
+		font:normal 20px "Comic Sans MS", cursive;
+		
+		background: #FF3;
+    	background: -webkit-linear-gradient(#FFC,#FF3);
+    	background:    -moz-linear-gradient(#FFC,#FF3);
+    	background:      -o-linear-gradient(#FFC,#FF3);
+    	background:         linear-gradient(#FFC,#FF3);
+	}
+	#msg
+	{
+		display:block;
+		margin:0px auto;
+		width:300px;
+		text-align:center;
+		position:relative;
+		top:-600px;
+		color:#F00;
+		font:normal 20px verdana;
+	}
+	.img
+	{
+		position:relative;
+		background:none;
+		width:45px;
+		top:127px;
+		margin:0px auto;
+		display:block;
+		vertical-align:middle;
+		opacity:.4;
+	}
+	#help
+	{
+		position:absolute;
+		text-align:right;
+		right:0px;
+		bottom:0px;
+		width:300px;
+		height:auto;
+		margin:5px;
+		opacity:0.4;
+		background:none;
+	}
+</style>
+<script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="jquery_cookie.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<script type="application/javascript">
+var game;
+var WIDTH,HEIGHT;
+var R=10;	// Radius of  big circle
+var c_x=10,c_y=10;	//Position of circle
+var r_x,r_y;	// Position of rectangle
+var minX=0,minY=0;	//canvas position
+var canvas;
+var n=0;	//No. of balls
+var i;
+var x=new Array();	// Position of small balls
+var y=new Array();
+var dx=new Array();	// Speed
+var dy=new Array();
+var MAX_SPEED=3;	// Maximum speed
+var MIN_SPEED=.2;
+var I;	//contains setInterval()
+var tries=-1;
+var score=0;
+var score_max=10;	// Max. score in a hit
+var high=0;	// Highscore
+var play=true;
+function init()	//Initialising the canvas
+{
+	canvas=document.getElementById("canvas");
+	game = canvas.getContext("2d");
+	temp= $.cookie("game");	// Cookie contains highscore
+	if(temp)
+		high=parseInt(temp);
+	WIDTH = canvas.width;
+	HEIGHT = canvas.height;
+	new_game();
+}
+function new_game()	// Starts a new game
+{
+	play=true;
+	
+	// Reset stats
+	n=0;
+	tries+=1;
+	MIN_SPEED=.2;
+	score=0;
+	score_max=10;
+	
+	rand_pos();
+	clearInterval(I);
+	document.getElementById("play").style.opacity=0.0;
+	setTimeout("document.getElementById('play').style.visibility='hidden';",700);
+	$.cookie("game",''+high, { expires: 7 });
+	document.getElementById("score").innerHTML="<b>Your score is  </b> : " + score;
+	document.getElementById("count").innerHTML="<b>No. of balls</b> : " + n;
+	document.getElementById("tries").innerHTML="<b>No. of tries</b> : " + tries;
+	document.getElementById("high").innerHTML="<b>Highscore   </b> : " + high;
+	document.getElementById("msg").innerHTML="";
+	I=setInterval("draw();",30);
+}
+function gameover()	// Gameover
+{
+	play=false;
+	clearInterval(I);
+	$.cookie("game",''+high, { expires: 365 });	// Write highscore into the cookie
+	document.getElementById("play").style.opacity=0.8;
+	document.getElementById('play').style.visibility='visible';;
+	document.getElementById("msg").innerHTML="You have been hit!!";
+}
+function rand_pos()	// Put the target somewhere
+{
+	r_x = Math.floor((Math.random()*(WIDTH  - 25))+5);
+	r_y = Math.floor((Math.random()*(HEIGHT - 25))+5);
+}
+function new_ball()	// Inserts a new ball
+{
+	x[n-1]=Math.floor( WIDTH/2  + (Math.random() * ( WIDTH/2  - c_x )) );
+	y[n-1]=Math.floor( HEIGHT/2 + (Math.random() * ( HEIGHT/2 - c_y )) );
+	dx[n-1]=(( Math.random()*(MAX_SPEED-MIN_SPEED) + MIN_SPEED )*(Math.floor(Math.random()*2)*2-1));
+	dy[n-1]=(( Math.random()*(MAX_SPEED-MIN_SPEED) + MIN_SPEED )*(Math.floor(Math.random()*2)*2-1));
+	MIN_SPEED+=0.1;
+}
+function count()	// Scoring
+{
+	n+=1;
+	if(score>high)
+		high=score;
+	document.getElementById("score").innerHTML="<b>Your score  </b> : " + score;
+	document.getElementById("count").innerHTML="<b>No. of balls</b> : " + n;
+	document.getElementById("high").innerHTML="<b>Highscore   </b> : " + high;
+}
+function onMouseMove(evt)	//	Mouse handler
+{
+	if( (evt.pageX > canvas.offsetLeft) && (evt.pageY > canvas.offsetTop) )
+	{
+		c_x=evt.pageX-canvas.offsetLeft;
+		c_y=evt.pageY-canvas.offsetTop;
+	}
+	if( play && (c_x > (r_x-10)) && (c_x < r_x+30) && (c_y > (r_y-10)) && (c_y < r_y+30) )
+	{
+		score+= Math.floor(Math.max(score_max,4))+1;
+		score_max=10;
+		rand_pos();
+		count();
+		new_ball();
+	}
+}
+
+$(document).mousemove(onMouseMove);	// mouse handler
+
+function clear()	// Clear
+{
+	game.clearRect(0,0,WIDTH,HEIGHT);
+}
+
+function circle(X,Y,r,colour1,colour2)
+{
+	var grad = game.createRadialGradient(X-r/2,Y-r/2,0, X,Y,r);
+	grad.addColorStop(0, colour2);
+	grad.addColorStop(1, colour1);
+	game.fillStyle = grad;
+	game.beginPath();
+	game.arc(X, Y, r, 0, Math.PI*2, true); 
+	game.closePath();
+	game.fill();
+}
+function rectangle(X,Y,W,H,colour1,colour2)
+{
+	var grad = game.createLinearGradient(X,Y,X+W,Y+H);
+	grad.addColorStop(0, colour2);
+	grad.addColorStop(1, colour1);
+	game.fillStyle = grad;
+	game.fillRect(X,Y,W,H);
+}
+function check_bounds()	//	bounce over the walls
+{
+	if( (x[i]+dx[i] < 0) || (x[i]+dx[i] >  WIDTH) )
+		dx[i] = -dx[i];
+	if( (y[i]+dy[i] < 0) || (y[i]+dy[i] > HEIGHT) )
+		dy[i] = -dy[i];		
+}
+function check_collision()	//	check if the ball collides the player
+{
+	if( (x[i]>c_x-10) && (x[i]<c_x+10) && (y[i]>c_y-10) && (y[i]<c_y+10) )
+	{
+		gameover();
+	}
+}
+function turn()	// Reverse the direction of all balls on click
+{
+	for(i=0;i<n;i++)
+	{
+		dx[i]=-dx[i];
+		dy[i]=-dy[i];
+	}
+}
+function draw()	// Main function
+{
+	clear();
+	rectangle(r_x,r_y,20,20,"B22222","F88888");
+	for( i=0; i<n; i++ )
+	{
+		circle(c_x,c_y,R,"crimson",'white');
+		check_bounds();
+		check_collision();
+		
+		//	New position
+		x[i]+=dx[i];
+		y[i]+=dy[i];
+		
+		circle(x[i],y[i],5,"333355","white");
+	}
+	score_max-=.1;
+}
+$(document).ready(function(){
+$("img.img").hover(
+function() {
+$(this).stop().animate({"opacity": "1.0"}, "slow");
+},
+function() {
+$(this).stop().animate({"opacity": "0.4"}, "slow");
+});
+$("#help").hover(function() {
+	$(this).fadeTo("normal",0.0,function(){
+		document.getElementById("help").innerHTML="Reach ur target<br>Don't get hit by the balls<br>Click to reverse the direction of the balls<br>Reaching your target faster fetches more points";
+	});
+	$(this).fadeTo("normal",1.0);
+},function() {
+	$(this).fadeTo("normal",0.0,function(){
+		document.getElementById("help").innerHTML="Help";
+	});
+	$(this).fadeTo("normal",0.4);
+});
+});
+</script>
+</head>
+<body onLoad="init();">
+	<canvas id="canvas" onClick="turn();" width="400" height="300"></canvas>
+    
+    <div id="play">
+    	<img class="img" onClick="new_game()" src="play.png"></img>
+        <div id="help">Help</div>
+	</div>
+    
+    <div id="message">
+		<div id="score" style="background:none"></div>
+		<div id="count" style="background:none"></div>
+        <div id="tries" style="background:none"></div>
+        <div id="high"  style="background:none"></div>
+    </div>
+    
+    <p id="msg"></p>
+</body>
+</html>
