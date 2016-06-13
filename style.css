@@ -21,6 +21,7 @@ body, canvas, div, img
 		
 		display:block;
 		margin:20px auto;
+		cursor: none;
 		border-right : dashed red   3px;
 		border-bottom: dashed red   3px;
 		border-top   : solid  black 3px;
